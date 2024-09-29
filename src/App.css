@@ -1,0 +1,24 @@
+.box {
+  display: flex;
+  height: 200px;
+  gap: 10px;
+  border: 1px solid red;
+  font-size: 20px;
+  align-items: center;
+  width: fit-content;
+}
+
+/* 
+.post-list {
+  display: inline;
+  justify-content: center;
+}
+
+.post-details {
+  display: inline;
+  justify-content: center;
+}
+
+p {
+  display: inline;
+} */
