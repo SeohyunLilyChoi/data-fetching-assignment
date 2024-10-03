@@ -3,7 +3,10 @@ import './App.css';
 
 import { useEffect, useState } from 'react';
 
-type PostResponse = {
+import PostDetail from './PostDetail';
+import PostList from './PostList';
+
+type Post = {
   userId: number;
   id: number;
   title: string;
@@ -11,51 +14,45 @@ type PostResponse = {
 };
 
 export const App = () => {
-  const [id, setId] = useState(1);
-  const [data, setData] = useState<PostResponse>();
+  const [posts, setPosts] = useState<Post[]>();
+  const [selectedId, setSelectedId] = useState<number>();
+
+  const handleId = (id: number) => {
+    setSelectedId(id);
+  };
+
+  const fetchPosts = async () => {
+    const data = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const json = (await data.json()) as Post[];
+    return json;
+  };
 
   useEffect(() => {
-    let ignore = false;
-
-    fetch(`https://jsonplaceholder.typicode.com/posts/${id}`)
-      .then((response) => response.json() as Promise<PostResponse>)
+    fetchPosts()
       .then((response) => {
-        if (ignore) return;
-        setData(response);
+        setPosts(response);
+        if (response[0] !== undefined) setSelectedId(response[0].id);
       })
       .catch(() => {
-        window.alert('실패');
+        alert('Cannot load posts');
       });
-
-    return () => {
-      ignore = true;
-    };
-  }, [id]);
+  }, []);
 
   return (
-    <div className="box">
-      <button
-        onClick={() => {
-          setId(id - 1);
-        }}
-      >
-        왼쪽
-      </button>
-      <div className="post-list">
-        <p>포스트 목록</p>
-        {data?.id} {data?.title}
-      </div>
-      <div className="post-details">
-        <p>내용</p>
-        {data?.body}
-      </div>
-      <button
-        onClick={() => {
-          setId(id + 1);
-        }}
-      >
-        오른쪽
-      </button>
+    <div className="container">
+      <PostList posts={posts} idSelectFunction={handleId} postId={selectedId} />
+      {selectedId !== undefined ? (
+        <PostDetail
+          id={selectedId}
+          body={
+            posts !== undefined && posts[selectedId] !== undefined
+              ? posts[selectedId].body
+              : ''
+          }
+        />
+      ) : (
+        <div className="detail-container"></div>
+      )}
     </div>
   );
 };
